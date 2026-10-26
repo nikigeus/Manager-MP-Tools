@@ -36,30 +36,14 @@
         <h2>Оставьте отзыв об инструменте</h2>
         <p class="muted" id="reviewToolName"></p>
 
-        <form id="reviewForm" novalidate>
-          <fieldset class="stars-field">
-            <legend>Оценка</legend>
-            <div class="star-input" id="starInput" role="radiogroup" aria-label="Оценка от 1 до 5">
-              <button type="button" data-value="1" aria-label="1 звезда">★</button>
-              <button type="button" data-value="2" aria-label="2 звезды">★</button>
-              <button type="button" data-value="3" aria-label="3 звезды">★</button>
-              <button type="button" data-value="4" aria-label="4 звезды">★</button>
-              <button type="button" data-value="5" aria-label="5 звёзд">★</button>
-            </div>
-            <input type="hidden" id="starsValue" value="">
-            <div class="error-text" id="starsError"></div>
-          </fieldset>
+           <!-- Вставляем iframe от Яндекс Форм -->
+        <div style="margin-top: 20px; border-radius: 12px; overflow: hidden;">
+          <iframe src="https://forms.yandex.ru/u/6adf1cd36d2d73a8cb299c38/?iframe=1" frameborder="0" name="ya-form-6adf1cd36d2d73a8cb299c38" width="100%" height="600px"></iframe>
+        </div>
 
-          <label class="field">
-            <span>Комментарий</span>
-            <textarea id="comment" maxlength="1000" rows="5" placeholder="Что понравилось? Что улучшить?"></textarea>
-            <small class="muted"><span id="commentCount">0</span> / 1000</small>
-          </label>
-
-          <div class="actions">
-            <button type="submit" class="btn primary">Отправить отзыв</button>
-            <a class="btn" href="index.html">Пропустить</a>
-          </div>
+        <div class="actions" style="margin-top: 20px; display: flex; justify-content: center;">
+          <a class="btn" href="index.html">← Пропустить и вернуться на главную</a>
+        </div>
         </form>
       </div>
     </div>
