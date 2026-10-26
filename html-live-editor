@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Live Editor - Двусторонний</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== MODERN HEADER ===== */
+        .header {
+            background: rgba(15, 12, 41, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 0 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(99, 102, 241, 0.5) 20%, 
+                rgba(168, 85, 247, 0.5) 50%, 
+                rgba(99, 102, 241, 0.5) 80%, 
+                transparent 100%);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(-5deg);
+            box-shadow: 0 6px 30px rgba(99, 102, 241, 0.6);
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+        }
+
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .header-badge {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a78bfa;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            gap: 24px;
+            padding: 24px 40px;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(30, 27, 60, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4), 0 0 40px rgba(99, 102, 241, 0.1);
+        }
+
+        .panel-header {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%);
+            color: white;
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .panel-header::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+
+        .panel-header.output::before {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            border: none;
+            padding: 20px;
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+            background: #0f0d1f;
+            color: #e2e8f0;
+        }
+
+        .preview {
+            flex: 1;
+            padding: 20px;
+            background: #fafafa;
+            overflow: auto;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            outline: none;
+            color: #1a1a2e;
+        }
+
+        .preview:focus {
+            box-shadow: inset 0 0 0 2px #6366f1;
+        }
+
+        /* Стили для скроллбара */
+        textarea::-webkit-scrollbar,
+        .preview::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        textarea::-webkit-scrollbar-track,
+        .preview::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background: #4a4a6a;
+            border-radius: 5px;
+        }
+
+        .preview::-webkit-scrollbar-thumb {
+            background: #c4c4d4;
+            border-radius: 5px;
+        }
+
+        /* ===== MODERN FOOTER ===== */
+        .footer {
+            background: rgba(15, 12, 41, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .footer-text strong {
+            color: white;
+            font-weight: 600;
+        }
+
+        .footer-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .footer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .footer-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-btn::after {
+            content: '→';
+            transition: transform 0.3s ease;
+        }
+
+        .footer-btn:hover::after {
+            transform: translateX(4px);
+        }
+
+        .sync-indicator {
+            position: fixed;
+            bottom: 90px;
+            right: 40px;
+            background: rgba(30, 27, 60, 0.95);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: #a78bfa;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .sync-indicator.active {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+
+        .sync-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 20px;
+                height: 60px;
+            }
+
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .header-subtitle {
+                display: none;
+            }
+
+            .header-badge {
+                display: none;
+            }
+
+            .container {
+                flex-direction: column;
+                padding: 16px 20px;
+                gap: 16px;
+            }
+
+            .footer {
+                padding: 0 20px;
+                flex-direction: column;
+                height: auto;
+                padding-top: 16px;
+                padding-bottom: 16px;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">⚡</div>
+            <div class="header-title">
+                <h1>HTML Live Editor</h1>
+                <span class="header-subtitle">Двусторонняя синхронизация в реальном времени</span>
+            </div>
+        </div>
+        <div class="header-badge">Live Preview</div>
+    </header>
+    
+    <div class="container">
+        <div class="panel">
+            <div class="panel-header">HTML Code</div>
+            <textarea id="htmlInput" placeholder="Введите HTML-код здесь..."><h1>Привет, мир!</h1>
+<p>Это <strong>живой</strong> редактор с двусторонней связью.</p>
+<p>Можно редактировать и здесь, и справа!</p>
+<ul>
+    <li>Пункт 1</li>
+    <li>Пункт 2</li>
+</ul></textarea>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header output">Visual Editor</div>
+            <div id="preview" class="preview" contenteditable="true"></div>
+        </div>
+    </div>
+
+    <!-- Modern Footer -->
+    <footer class="footer">
+        <div class="footer-left">
+            <div class="footer-avatar">NK</div>
+            <span class="footer-text">By <strong>Nikita Kornilov</strong></span>
+        </div>
+        <button class="footer-btn" onclick="alert('Здесь будет переход к другим сервисам!')">
+            Другие сервисы
+        </button>
+    </footer>
+
+    <div class="sync-indicator" id="syncIndicator">⟷ Синхронизация...</div>
+
+    <script>
+        const htmlInput = document.getElementById('htmlInput');
+        const preview = document.getElementById('preview');
+        const syncIndicator = document.getElementById('syncIndicator');
+        let isUpdating = false;
+
+        function showSync() {
+            syncIndicator.classList.add('active');
+            setTimeout(() => syncIndicator.classList.remove('active'), 500);
+        }
+
+        // Обновление превью при изменении кода
+        htmlInput.addEventListener('input', () => {
+            if (isUpdating) return;
+            isUpdating = true;
+            preview.innerHTML = htmlInput.value;
+            showSync();
+            isUpdating = false;
+        });
+
+        // Обновление кода при изменении превью (contenteditable)
+        preview.addEventListener('input', () => {
+            if (isUpdating) return;
+            isUpdating = true;
+            htmlInput.value = preview.innerHTML;
+            showSync();
+            isUpdating = false;
+        });
+
+        // Инициализация
+        preview.innerHTML = htmlInput.value;
+
+        // Обработка вставки текста (чтобы вставлялся как обычный текст без форматирования)
+        preview.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+    </script>
+</body>
+</html>
