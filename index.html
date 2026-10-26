@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toolbox — мои инструменты</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="brand-logo">🧰</div>
+        <div>
+          <h1>Toolbox</h1>
+          <p>Коллекция полезных веб-инструментов</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="intro">
+      <h2>Выберите инструмент</h2>
+      <p>Откроется на новой странице. После использования вы сможете оставить отзыв.</p>
+    </section>
+
+    <section id="toolsGrid" class="tools-grid" aria-live="polite"></section>
+
+    <section class="reviews-summary">
+      <h2>Последние отзывы</h2>
+      <div id="recentReviews" class="recent-reviews"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>© <span id="year"></span> Toolbox · Сделано с ❤️</p>
+    </div>
+  </footer>
+
+  <script src="js/tools.js"></script>
+  <script src="js/reviews.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
