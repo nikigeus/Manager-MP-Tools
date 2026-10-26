@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Инструмент — Toolbox</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="tool-page">
+
+  <header class="site-header compact">
+    <div class="wrap header-row">
+      <a href="index.html" class="back-link">← Все инструменты</a>
+      <h1 id="toolTitle">Загрузка…</h1>
+      <span class="spacer"></span>
+    </div>
+  </header>
+
+  <!-- Стадия 1: инструмент -->
+  <section id="stageTool" class="stage">
+    <div class="wrap">
+      <div class="iframe-shell">
+        <iframe id="toolFrame" title="Инструмент" loading="lazy"></iframe>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="finishBtn">Я закончил(а) — оставить отзыв</button>
+        <a class="btn" href="index.html">← На главную</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Стадия 2: отзыв -->
+  <section id="stageReview" class="stage hidden">
+    <div class="wrap narrow">
+      <div class="review-card">
+        <h2>Оставьте отзыв об инструменте</h2>
+        <p class="muted" id="reviewToolName"></p>
+
+        <form id="reviewForm" novalidate>
+          <fieldset class="stars-field">
+            <legend>Оценка</legend>
+            <div class="star-input" id="starInput" role="radiogroup" aria-label="Оценка от 1 до 5">
+              <button type="button" data-value="1" aria-label="1 звезда">★</button>
+              <button type="button" data-value="2" aria-label="2 звезды">★</button>
+              <button type="button" data-value="3" aria-label="3 звезды">★</button>
+              <button type="button" data-value="4" aria-label="4 звезды">★</button>
+              <button type="button" data-value="5" aria-label="5 звёзд">★</button>
+            </div>
+            <input type="hidden" id="starsValue" value="">
+            <div class="error-text" id="starsError"></div>
+          </fieldset>
+
+          <label class="field">
+            <span>Комментарий</span>
+            <textarea id="comment" maxlength="1000" rows="5" placeholder="Что понравилось? Что улучшить?"></textarea>
+            <small class="muted"><span id="commentCount">0</span> / 1000</small>
+          </label>
+
+          <div class="actions">
+            <button type="submit" class="btn primary">Отправить отзыв</button>
+            <a class="btn" href="index.html">Пропустить</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Стадия 3: благодарность -->
+  <section id="stageThanks" class="stage hidden">
+    <div class="wrap narrow center">
+      <div class="thanks-card">
+        <div class="thanks-emoji">🙏</div>
+        <h2>Спасибо за отзыв!</h2>
+        <p class="muted">Вы помогаете сделать инструменты лучше.</p>
+        <p class="muted">Через <span id="countdown">3</span> сек. вернёмся на главную…</p>
+        <a class="btn primary" href="index.html">Вернуться сейчас</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/tools.js"></script>
+  <script src="js/reviews.js"></script>
+  <script src="js/tool.js"></script>
+</body>
+</html>
