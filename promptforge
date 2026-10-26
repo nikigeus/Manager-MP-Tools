@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromptForge — конструктор промптов для карточек маркетплейсов</title>
+<style>
+/* ============ Дизайн-токены и базовые стили ============ */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --text: #172033;
+  --muted: #64748b;
+  --border: #dce3ee;
+  --accent-1: #16255c;
+  --accent-2: #2a4bbd;
+  --accent-3: #4f7cf7;
+  --accent-soft: #eaf0ff;
+  --danger: #d64545;
+  --danger-soft: #fff1f1;
+  --success: #1d7a4f;
+  --radius: 10px;
+  --shadow: 0 8px 24px rgba(22, 37, 92, .08);
+}
+html[data-theme="dark"] {
+  --bg: #0d1220;
+  --surface: #151c2c;
+  --surface-2: #1b2438;
+  --text: #e8edf7;
+  --muted: #9aa7bd;
+  --border: #2b3550;
+  --accent-soft: #1d2a49;
+  --danger-soft: #3a2020;
+  --shadow: 0 8px 24px rgba(0, 0, 0, .28);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  min-width: 320px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  transition: background-color .2s ease, color .2s ease;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent-3); outline-offset: 2px; }
+
+/* ============ Каркас страницы ============ */
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+}
+.brand h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+.brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.icon-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 9px 14px;
+  transition: border-color .15s ease, transform .15s ease, background-color .15s ease;
+}
+.icon-btn:hover { border-color: var(--accent-3); transform: translateY(-1px); }
+
+/* ============ Прогресс ============ */
+.progress {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin: 18px 0 22px;
+}
+.progress div {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background-color .2s ease;
+}
+.progress div.active { background: linear-gradient(90deg, var(--accent-2), var(--accent-3)); }
+
+/* ============ Карточки и шаги ============ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+.step-title { margin: 0 0 6px; font-size: 21px; }
+.step-sub { margin: 0 0 20px; color: var(--muted); }
+.step { display: none; }
+.step.active { display: block; animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ============ Плитки выбора ============ */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+.tile {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 16px;
+  text-align: left;
+  transition: border-color .15s ease, background-color .15s ease, transform .15s ease;
+}
+.tile:hover { border-color: var(--accent-3); transform: translateY(-1px); }
+.tile.selected {
+  border-color: var(--accent-2);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-2);
+}
+.tile strong { display: block; margin-bottom: 4px; }
+.tile span { color: var(--muted); font-size: 13px; }
+.tile .check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: transparent;
+}
+.tile.selected .check { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+
+/* ============ Формы ============ */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field.full { grid-column: 1 / -1; }
+label { font-weight: 600; font-size: 14px; }
+.hint { color: var(--muted); font-size: 12px; }
+input[type="text"], textarea, select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 11px 12px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+textarea { min-height: 96px; resize: vertical; }
+input:hover, textarea:hover, select:hover { border-color: #a9b8d4; }
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent-3);
+  box-shadow: 0 0 0 3px rgba(79, 124, 247, .16);
+  outline: none;
+}
+.invalid { border-color: var(--danger) !important; background: var(--danger-soft) !important; }
+.error-text { color: var(--danger); font-size: 12px; min-height: 16px; }
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-2); }
+input[type="range"] { width: 100%; accent-color: var(--accent-2); }
+.range-row { display: flex; align-items: center; gap: 14px; }
+.range-value {
+  min-width: 42px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: var(--surface-2);
+  font-weight: 700;
+}
+.marketplace-note {
+  margin-top: 16px;
+  padding: 14px;
+  border-left: 4px solid var(--accent-2);
+  background: var(--accent-soft);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* ============ Кнопки управления ============ */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 22px;
+}
+.actions .right, .actions .left { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 11px 18px;
+  border-radius: var(--radius);
+  font-weight: 650;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.btn:hover { transform: translateY(-1px); border-color: var(--accent-3); }
+.btn.primary {
+  border-color: transparent;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  box-shadow: var(--shadow);
+}
+.btn.primary:hover { background: linear-gradient(135deg, #101c48, #1f3fa6); }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--danger); }
+.btn.danger:hover { border-color: var(--danger); }
+
+/* ============ Результат ============ */
+.result-box textarea {
+  min-height: 380px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+  white-space: pre;
+}
+.result-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 10px 0 16px;
+}
+.summary {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  background: var(--surface-2);
+}
+.summary h3 { margin: 0 0 10px; font-size: 16px; }
+.summary ul { margin: 0; padding-left: 20px; }
+.summary li { margin: 4px 0; }
+
+/* ============ Toast ============ */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--accent-1);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 20;
+  max-width: calc(100vw - 32px);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ============ Адаптивность ============ */
+@media (max-width: 700px) {
+  .grid { grid-template-columns: 1fr; }
+  .card { padding: 16px; }
+  .brand h1 { font-size: 19px; }
+  .actions { flex-direction: column; }
+  .actions .left, .actions .right { width: 100%; }
+  .actions .btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Шапка и переключатель темы -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">PF</div>
+      <div>
+        <h1>PromptForge</h1>
+        <p>Конструктор промптов для карточек товаров</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button id="themeToggle" class="icon-btn" title="Переключить светлую или тёмную тему">🌙</button>
+    </div>
+  </header>
+
+  <!-- Прогресс-бар -->
+  <div class="progress" aria-label="Прогресс мастера">
+    <div class="active"></div><div></div><div></div><div></div><div></div>
+  </div>
+
+  <main class="card">
+    <!-- ШАГ 1: Маркетплейс -->
+    <section class="step active" data-step="1">
+      <h2 class="step-title">Шаг 1. Маркетплейс</h2>
+      <p class="step-sub">Выберите площадку — её правила будут добавлены в промпт.</p>
+      <div class="tiles" id="marketplaceTiles"></div>
+      <div class="marketplace-note" id="marketplaceNote"></div>
+      <div class="actions">
+        <div class="left"><button class="btn ghost" id="exampleBtn" title="Заполнить демо-данными кроссовок RunFast">Пример</button></div>
+        <div class="right"><button class="btn primary" data-next>Далее</button></div>
+      </div>
+    </section>
+
+    <!-- ШАГ 2: Задача -->
+    <section class="step" data-step="2">
+      <h2 class="step-title">Шаг 2. Тип задачи</h2>
+      <p class="step-sub">Что именно должен сделать ИИ с карточкой товара?</p>
+      <div class="tiles" id="taskTiles"></div>
+      <div class="actions">
+        <div class="left"><button class="btn" data-prev>Назад</button></div>
+        <div class="right"><button class="btn primary" data-next>Далее</button></div>
+      </div>
+    </section>
+
+    <!-- ШАГ 3: Товар -->
+    <section class="step" data-step="3">
+      <h2 class="step-title">Шаг 3. Данные о товаре</h2>
+      <p class="step-sub">Чем точнее данные, тем полезнее будет сгенерированный промпт.</p>
+      <div class="grid">
+        <div class="field">
+          <label for="category">Категория товара *</label>
+          <input type="text" id="category" placeholder="Например: Кроссовки для бега">
+          <div class="error-text" data-error-for="category"></div>
+        </div>
+        <div class="field">
+          <label for="title">Название товара *</label>
+          <input type="text" id="title" placeholder="Например: RunFast Air 2">
+          <div class="error-text" data-error-for="title"></div>
+        </div>
+        <div class="field">
+          <label for="brand" title="Бренд или торговая марка">Бренд</label>
+          <input type="text" id="brand" placeholder="RunFast">
+        </div>
+        <div class="field">
+          <label for="audience" title="Кому предназначен товар">Целевая аудитория</label>
+          <input type="text" id="audience" placeholder="Бегуны-любители, 25–45 лет">
+        </div>
+        <div class="field full">
+          <label for="keywords" title="Поисковые запросы через запятую">Ключевые слова / поисковые запросы</label>
+          <textarea id="keywords" placeholder="кроссовки для бега, мужские кроссовки, кроссовки с амортизацией"></textarea>
+        </div>
+        <div class="field full">
+          <label for="features" title="Материалы, размеры, технологии, комплектация">Характеристики</label>
+          <textarea id="features" placeholder="Верх: сетка; Подошва: EVA; Вес: 280 г; Размеры: 39–46"></textarea>
+        </div>
+        <div class="field full">
+          <label for="usp" title="Чем товар лучше аналогов">Преимущества / УТП</label>
+          <textarea id="usp" placeholder="Амортизация, дышащий верх, усиленная пятка"></textarea>
+        </div>
+        <div class="field">
+          <label for="competitors" title="Необязательно. Используйте осторожно: некоторые площадки запрещают упоминание конкурентов">Конкуренты</label>
+          <input type="text" id="competitors" placeholder="Nike, Adidas">
+        </div>
+        <div class="field">
+          <label for="tone">Tone of voice</label>
+          <select id="tone"></select>
+        </div>
+        <div class="field full">
+          <label for="language">Язык вывода</label>
+          <select id="language"></select>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="left"><button class="btn" data-prev>Назад</button></div>
+        <div class="right"><button class="btn primary" data-next>Далее</button></div>
+      </div>
+    </section>
+
+    <!-- ШАГ 4: Настройки -->
+    <section class="step" data-step="4">
+      <h2 class="step-title">Шаг 4. Тонкие настройки</h2>
+      <p class="step-sub">Задайте объём, стиль и формат результата.</p>
+      <div class="grid">
+        <div class="field">
+          <label for="descLength">Длина описания</label>
+          <select id="descLength"></select>
+        </div>
+        <div class="field">
+          <label for="style">Стиль</label>
+          <select id="style"></select>
+        </div>
+        <div class="field full">
+          <label for="outputFormat">Формат вывода</label>
+          <select id="outputFormat"></select>
+        </div>
+        <div class="field full">
+          <div class="checkbox-row">
+            <input type="checkbox" id="useEmoji">
+            <label for="useEmoji" style="margin:0;">Использовать эмодзи</label>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="creativity">Уровень креативности</label>
+          <div class="range-row">
+            <input type="range" id="creativity" min="0" max="10" step="1" value="5">
+            <output class="range-value" id="creativityValue" for="creativity">5</output>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="forbidden" title="Слова, формулировки и приёмы, которых следует избегать">Запрещённые слова / чего избегать</label>
+          <textarea id="forbidden" placeholder="лучший, №1, гарантия результата, CAPS LOCK"></textarea>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="left"><button class="btn" data-prev>Назад</button></div>
+        <div class="right"><button class="btn primary" data-next>Сгенерировать промпт</button></div>
+      </div>
+    </section>
+
+    <!-- ШАГ 5: Результат -->
+    <section class="step" data-step="5">
+      <h2 class="step-title">Шаг 5. Готовый промпт</h2>
+      <p class="step-sub">Скопируйте текст и вставьте его в любой ИИ-ассистент.</p>
+      <div class="result-box">
+        <textarea id="promptOutput" readonly aria-label="Готовый промпт"></textarea>
+        <div class="result-meta">
+          <span id="charCount">0 символов</span>
+          <span>Промпт сформирован локально</span>
+        </div>
+      </div>
+      <div class="actions" style="justify-content:flex-start;">
+        <button class="btn primary" id="copyBtn">Скопировать</button>
+        <button class="btn" id="downloadBtn">Скачать .txt</button>
+        <button class="btn" data-prev>Вернуться к настройкам</button>
+        <button class="btn danger" id="resetAllBtn">Сбросить всё</button>
+      </div>
+      <div class="summary" style="margin-top:20px;">
+        <h3>Что попросит промпт</h3>
+        <div id="summary"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   СПРАВОЧНИКИ
+========================================================= */
+const MARKETPLACES = {
+  wb: {
+    name: "Wildberries",
+    titleLimit: 60,
+    descLimit: 5000,
+    rules: "Без эмодзи, без CAPS LOCK, без упоминания конкурентов, без ссылок и контактов, обязательна структура: наименование + описание + характеристики."
+  },
+  ozon: {
+    name: "Ozon",
+    titleLimit: 255,
+    descLimit: 6000,
+    rules: "Заголовок по схеме: Тип + Бренд + Модель + Характеристика. Без воды, без субъективных оценок, без эмодзи."
+  },
+  yamarket: {
+    name: "Яндекс.Маркет",
+    titleLimit: 150,
+    descLimit: 3000,
+    rules: "Официально-деловой стиль, факты, характеристики, без рекламных преувеличений."
+  },
+  megamarket: {
+    name: "Мегамаркет",
+    titleLimit: 200,
+    descLimit: 4000,
+    rules: "Акцент на выгоде и бонусах, чёткая структура, без запрещённых слов."
+  },
+  universal: {
+    name: "Универсальный",
+    titleLimit: 200,
+    descLimit: 4000,
+    rules: "Универсальные правила: ясность, структура, польза, отсутствие воды."
+  }
+};
+
+const TASKS = {
+  create: {
+    label: "Создать карточку с нуля",
+    instruction: "Создай карточку товара с нуля: предложи продающий заголовок, структурированное описание и список ключевых характеристик. Опирайся только на переданные данные, не выдумывай отсутствующие факты."
+  },
+  rewrite: {
+    label: "Переписать (рерайт) существующую",
+    instruction: "Перепиши существующую карточку товара: сохрани все достоверные факты и характеристики, устрани повторы и канцелярит, сделай текст более ясным, структурированным и продающим."
+  },
+  seo: {
+    label: "SEO-оптимизация под ключевые слова",
+    instruction: "Выполни SEO-оптимизацию карточки товара под переданные поисковые запросы. Естественно распредели ключевые слова по заголовку, описанию и характеристикам без keyword stuffing."
+  },
+  shorten: {
+    label: "Сократить описание",
+    instruction: "Сократи описание карточки товара, сохранив наиболее важные характеристики, выгоды и поисковые запросы. Удали воду, повторы и второстепенные формулировки."
+  },
+  expand: {
+    label: "Расширить описание",
+    instruction: "Расширь описание карточки товара: добавь понятные сценарии использования, выгоды для покупателя и структурированные блоки. Не добавляй характеристики или обещания, которых нет во входных данных."
+  },
+  fix: {
+    label: "Исправить ошибки и стиль",
+    instruction: "Исправь орфографию, пунктуацию, грамматику и стилистические ошибки в карточке товара. Приведи текст к единообразному деловому стилю, сохранив исходный смысл."
+  },
+  usp: {
+    label: "Сгенерировать УТП и офферы",
+    instruction: "Сгенерируй 5–7 сильных УТП и офферов для карточки товара. Каждое УТП должно быть конкретным, основанным на характеристиках и преимуществах, без необоснованных обещаний."
+  },
+  ab: {
+    label: "Сделать A/B-варианты заголовка",
+    instruction: "Сделай 5 A/B-вариантов заголовка карточки товара. Для каждого варианта кратко укажи гипотезу: на какой запрос, выгоду или сегмент аудитории он опирается."
+  },
+  adapt: {
+    label: "Адаптировать карточку под другую площадку",
+    instruction: "Адаптируй карточку товара под правила выбранного маркетплейса: перестрой заголовок и описание, соблюдай ограничения по символам, стилю и запрещённым элементам."
+  }
+};
+
+const TONES = ["Дружелюбный", "Экспертный", "Премиум", "Молодёжный", "Нейтральный"];
+const LANGUAGES = ["Русский", "English", "Deutsch", "Español", "中文"];
+const DESC_LENGTHS = {
+  short: "500–900 символов",
+  medium: "1200–2000 символов",
+  long: "2500–4000 символов"
+};
+const STYLES = ["Продающий", "Информативный", "Технический"];
+const OUTPUT_FORMATS = {
+  json: "строго валидный JSON с полями title, description, bullets",
+  markdown: "Markdown с заголовками ## и списками",
+  table: "таблица Markdown: Поле | Значение",
+  plain: "обычный текст без разметки"
+};
+
+const STEP_NAMES = ["Маркетплейс", "Задача", "Товар", "Настройки", "Результат"];
+const STORAGE_KEY = "promptforge_state";
+
+/* =========================================================
+   DOM-ссылки
+========================================================= */
+const $ = (selector) => document.querySelector(selector);
+const steps = [...document.querySelectorAll(".step")];
+const progressSegments = [...document.querySelectorAll(".progress div")];
+const toast = $("#toast");
+let currentStep = 1;
+
+/* =========================================================
+   Утилиты
+========================================================= */
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function fillSelect(select, values, selectedValue) {
+  select.innerHTML = values.map((value) => {
+    const selected = value === selectedValue ? " selected" : "";
+    return `<option value="${escapeHtml(value)}"${selected}>${escapeHtml(value)}</option>`;
+  }).join("");
+}
+
+/* =========================================================
+   Состояние, сохранение и восстановление
+========================================================= */
+const fieldIds = [
+  "category", "title", "brand", "keywords", "features", "audience", "usp",
+  "competitors", "tone", "language", "descLength", "style", "outputFormat",
+  "useEmoji", "creativity", "forbidden"
+];
+
+function getState() {
+  const state = {
+    marketplace: document.querySelector("#marketplaceTiles .tile.selected")?.dataset.value || "",
+    task: document.querySelector("#taskTiles .tile.selected")?.dataset.value || "",
+    theme: document.documentElement.dataset.theme || "light"
+  };
+  fieldIds.forEach((id) => {
+    const el = document.getElementById(id);
+    state[id] = el.type === "checkbox" ? el.checked : el.value;
+  });
+  return state;
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
+  } catch (error) {
+    // localStorage может быть недоступен в приватном режиме — работа продолжается без сохранения.
+  }
+}
+
+function restoreState() {
+  let state;
+  try {
+    state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+  } catch (error) {
+    state = null;
+  }
+  if (!state) return;
+
+  if (state.marketplace) selectTile("#marketplaceTiles", state.marketplace);
+  if (state.task) selectTile("#taskTiles", state.task);
+  fieldIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!(id in state)) return;
+    if (el.type === "checkbox") el.checked = Boolean(state[id]);
+    else el.value = state[id];
+  });
+  if (state.theme === "dark") setTheme("dark");
+  $("#creativityValue").textContent = $("#creativity").value;
+  updateMarketplaceNote();
+}
+
+function clearState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    // Игнорируем недоступность localStorage.
+  }
+}
+
+/* =========================================================
+   Отрисовка плиток и селектов
+========================================================= */
+function renderMarketplaces() {
+  const container = $("#marketplaceTiles");
+  container.innerHTML = Object.entries(MARKETPLACES).map(([key, item]) => `
+    <button type="button" class="tile" data-value="${key}" title="${escapeHtml(item.rules)}">
+      <span class="check">✓</span>
+      <strong>${escapeHtml(item.name)}</strong>
+      <span>Заголовок: до ${item.titleLimit} символов · Описание: до ${item.descLimit}</span>
+    </button>
+  `).join("");
+}
+
+function renderTasks() {
+  const container = $("#taskTiles");
+  container.innerHTML = Object.entries(TASKS).map(([key, item]) => `
+    <button type="button" class="tile" data-value="${key}" title="${escapeHtml(item.instruction)}">
+      <span class="check">✓</span>
+      <strong>${escapeHtml(item.label)}</strong>
+      <span>Готовая инструкция для ИИ</span>
+    </button>
+  `).join("");
+}
+
+function renderSelects() {
+  fillSelect($("#tone"), TONES, "Экспертный");
+  fillSelect($("#language"), LANGUAGES, "Русский");
+  fillSelect($("#descLength"), Object.values(DESC_LENGTHS), DESC_LENGTHS.medium);
+  fillSelect($("#style"), STYLES, "Продающий");
+  fillSelect($("#outputFormat"), Object.values(OUTPUT_FORMATS), OUTPUT_FORMATS.markdown);
+}
+
+function selectTile(containerSelector, value) {
+  document.querySelectorAll(`${containerSelector} .tile`).forEach((tile) => {
+    tile.classList.toggle("selected", tile.dataset.value === value);
+  });
+  updateMarketplaceNote();
+  saveState();
+}
+
+function updateMarketplaceNote() {
+  const key = document.querySelector("#marketplaceTiles .tile.selected")?.dataset.value;
+  const note = $("#marketplaceNote");
+  if (!key || !MARKETPLACES[key]) {
+    note.innerHTML = "<strong>Правила площадки появятся после выбора.</strong>";
+    return;
+  }
+  const market = MARKETPLACES[key];
+  note.innerHTML = `<strong>${escapeHtml(market.name)}:</strong> ${escapeHtml(market.rules)}
+    <br><small>Лимиты: заголовок — ${market.titleLimit} символов, описание — до ${market.descLimit} символов.</small>`;
+}
+
+/* =========================================================
+   Навигация и валидация
+========================================================= */
+function setStep(step) {
+  currentStep = Math.min(Math.max(step, 1), 5);
+  steps.forEach((section) => section.classList.toggle("active", Number(section.dataset.step) === currentStep));
+  progressSegments.forEach((segment, index) => segment.classList.toggle("active", index < currentStep));
+  if (currentStep === 5) {
+    generatePrompt();
+    updatePreview();
+    renderSummary();
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function setFieldError(id, hasError, message = "Заполните обязательное поле") {
+  const field = document.getElementById(id);
+  const error = document.querySelector(`[data-error-for="${id}"]`);
+  field.classList.toggle("invalid", hasError);
+  if (error) error.textContent = hasError ? message : "";
+}
+
+function validateStep(step) {
+  let valid = true;
+
+  if (step === 1) {
+    const selected = document.querySelector("#marketplaceTiles .tile.selected");
+    if (!selected) {
+      valid = false;
+      showToast("Выберите маркетплейс");
+    }
+  }
+
+  if (step === 2) {
+    const selected = document.querySelector("#taskTiles .tile.selected");
+    if (!selected) {
+      valid = false;
+      showToast("Выберите тип задачи");
+    }
+  }
+
+  if (step === 3) {
+    ["category", "title"].forEach((id) => {
+      const empty = !document.getElementById(id).value.trim();
+      setFieldError(id, empty);
+      if (empty) valid = false;
+    });
+    if (!valid) showToast("Заполните категорию и название товара");
+  }
+
+  return valid;
+}
+
+/* =========================================================
+   Генерация промпта
+========================================================= */
+function buildRole(state) {
+  const marketName = MARKETPLACES[state.marketplace]?.name || "маркетплейсу";
+  return `[РОЛЬ]\nТы — профессиональный копирайтер и SEO-специалист по маркетплейсу ${marketName}.`;
+}
+
+function buildContext(state) {
+  const market = MARKETPLACES[state.marketplace] || MARKETPLACES.universal;
+  return [
+    "[КОНТЕКСТ]",
+    `Маркетплейс: ${market.name}`,
+    `Правила площадки: ${market.rules}`,
+    `Категория: ${state.category || "не указана"}`,
+    `Целевая аудитория: ${state.audience || "не указана"}`,
+    `Tone of voice: ${state.tone}`,
+    `Язык вывода: ${state.language}`
+  ].join("\n");
+}
+
+function buildTask(state) {
+  const task = TASKS[state.task] || TASKS.create;
+  return `[ЗАДАЧА]\n${task.instruction}`;
+}
+
+function buildInput(state) {
+  return [
+    "[ВХОДНЫЕ ДАННЫЕ]",
+    `Название: ${state.title || "не указано"}`,
+    `Бренд: ${state.brand || "не указан"}`,
+    `Ключевые слова: ${state.keywords || "не указаны"}`,
+    `Характеристики: ${state.features || "не указаны"}`,
+    `Преимущества: ${state.usp || "не указаны"}`,
+    `Конкуренты: ${state.competitors || "не указаны"}`
+  ].join("\n");
+}
+
+function buildRequirements(state) {
+  const market = MARKETPLACES[state.marketplace] || MARKETPLACES.universal;
+  return [
+    "[ТРЕБОВАНИЯ К РЕЗУЛЬТАТУ]",
+    `- Заголовок: не более ${market.titleLimit} символов`,
+    `- Описание: ${state.descLength}`,
+    `- Обязательно использовать ключевые слова: ${state.keywords || "не указаны"}`,
+    `- Стиль: ${state.style}`,
+    `- Эмодзи: ${state.useEmoji ? "разрешены" : "запрещены"}`,
+    `- Уровень креативности: ${state.creativity}/10`,
+    `- Избегать: ${state.forbidden || "воды, общих фраз и необоснованных обещаний"}`,
+    `- Формат вывода: ${state.outputFormat}`
+  ].join("\n");
+}
+
+function buildQuality(state) {
+  const marketName = MARKETPLACES[state.marketplace]?.name || "выбранному маркетплейсу";
+  return [
+    "[КРИТЕРИИ КАЧЕСТВА]",
+    `- Полное соответствие правилам ${marketName}`,
+    "- Отсутствие воды и общих фраз",
+    "- Логичная структура и читабельность",
+    "- Готовность к публикации без правок"
+  ].join("\n");
+}
+
+function buildOutput(state) {
+  return `[ВЫВОД]\nВерни результат строго в формате: ${state.outputFormat}. Без пояснений.`;
+}
+
+function generatePrompt() {
+  const state = getState();
+  return [
+    buildRole(state),
+    buildContext(state),
+    buildTask(state),
+    buildInput(state),
+    buildRequirements(state),
+    buildQuality(state),
+    buildOutput(state)
+  ].join("\n\n");
+}
+
+function updatePreview() {
+  const prompt = generatePrompt();
+  $("#promptOutput").value = prompt;
+  $("#charCount").textContent = `${prompt.length.toLocaleString("ru-RU")} символов`;
+}
+
+function renderSummary() {
+  const state = getState();
+  const market = MARKETPLACES[state.marketplace] || MARKETPLACES.universal;
+  const task = TASKS[state.task] || TASKS.create;
+  const items = [
+    `<li><strong>Площадка:</strong> ${escapeHtml(market.name)}</li>`,
+    `<li><strong>Задача:</strong> ${escapeHtml(task.label)}</li>`,
+    `<li><strong>Товар:</strong> ${escapeHtml(state.title || "не указан")}</li>`,
+    `<li><strong>Категория:</strong> ${escapeHtml(state.category || "не указана")}</li>`,
+    `<li><strong>Заголовок:</strong> до ${market.titleLimit} символов</li>`,
+    `<li><strong>Описание:</strong> ${escapeHtml(state.descLength)}</li>`,
+    `<li><strong>Стиль:</strong> ${escapeHtml(state.style)}, ${escapeHtml(state.tone.toLowerCase())} тон</li>`,
+    `<li><strong>Эмодзи:</strong> ${state.useEmoji ? "разрешены" : "запрещены"}</li>`,
+    `<li><strong>Формат:</strong> ${escapeHtml(state.outputFormat)}</li>`
+  ];
+  $("#summary").innerHTML = `<ul>${items.join("")}</ul>`;
+}
+
+/* =========================================================
+   Действия: копирование, скачивание, сброс, пример
+========================================================= */
+async function copyPrompt() {
+  const text = $("#promptOutput").value;
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("Промпт скопирован");
+  } catch (error) {
+    // Фоллбэк для браузеров и контекстов без Clipboard API.
+    const output = $("#promptOutput");
+    output.removeAttribute("readonly");
+    output.select();
+    const copied = document.execCommand("copy");
+    output.setAttribute("readonly", "");
+    window.getSelection()?.removeAllRanges();
+    showToast(copied ? "Промпт скопирован" : "Не удалось скопировать — выделите текст вручную");
+  }
+}
+
+function downloadPrompt() {
+  const blob = new Blob([$("#promptOutput").value], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "promptforge-prompt.txt";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showToast("Файл .txt скачан");
+}
+
+function resetAll() {
+  if (!confirm("Сбросить все данные, очистить форму и удалить сохранённое состояние?")) return;
+  clearState();
+  document.querySelectorAll("input[type='text'], textarea").forEach((el) => { el.value = ""; });
+  document.querySelectorAll(".invalid").forEach((el) => el.classList.remove("invalid"));
+  document.querySelectorAll(".error-text").forEach((el) => { el.textContent = ""; });
+  document.querySelectorAll("#marketplaceTiles .tile, #taskTiles .tile").forEach((el) => el.classList.remove("selected"));
+  $("#useEmoji").checked = false;
+  $("#creativity").value = 5;
+  $("#creativityValue").textContent = "5";
+  fillSelect($("#tone"), TONES, "Экспертный");
+  fillSelect($("#language"), LANGUAGES, "Русский");
+  fillSelect($("#descLength"), Object.values(DESC_LENGTHS), DESC_LENGTHS.medium);
+  fillSelect($("#style"), STYLES, "Продающий");
+  fillSelect($("#outputFormat"), Object.values(OUTPUT_FORMATS), OUTPUT_FORMATS.markdown);
+  $("#promptOutput").value = "";
+  $("#charCount").textContent = "0 символов";
+  updateMarketplaceNote();
+  setStep(1);
+  showToast("Все данные сброшены");
+}
+
+function fillExample() {
+  selectTile("#marketplaceTiles", "wb");
+  selectTile("#taskTiles", "create");
+  $("#category").value = "Кроссовки для бега";
+  $("#title").value = "Кроссовки RunFast Air 2 для бега";
+  $("#brand").value = "RunFast";
+  $("#keywords").value = "кроссовки для бега, мужские кроссовки, кроссовки с амортизацией, беговые кроссовки, лёгкие кроссовки";
+  $("#features").value = "Верх: дышащая сетка; Промежуточная подошва: EVA; Стелька: съёмная, анатомическая; Вес: 280 г; Размеры: 39–46; Цвет: чёрный/синий";
+  $("#audience").value = "Мужчины 25–45 лет, бегуны-любители и посетители фитнес-зала";
+  $("#usp").value = "Амортизация при беге по асфальту; лёгкий дышащий верх; усиленная фиксация пятки; универсальны для тренировок и прогулок";
+  $("#competitors").value = "";
+  $("#tone").value = "Дружелюбный";
+  $("#language").value = "Русский";
+  $("#descLength").value = DESC_LENGTHS.medium;
+  $("#useEmoji").checked = false;
+  $("#style").value = "Продающий";
+  $("#outputFormat").value = OUTPUT_FORMATS.markdown;
+  $("#creativity").value = 6;
+  $("#creativityValue").textContent = "6";
+  $("#forbidden").value = "лучший, №1, гарантия результата, CAPS LOCK, упоминание конкурентов";
+  ["category", "title"].forEach((id) => setFieldError(id, false));
+  saveState();
+  showToast("Демо-данные кроссовок RunFast загружены");
+}
+
+/* =========================================================
+   Тема
+========================================================= */
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  $("#themeToggle").textContent = theme === "dark" ? "☀️" : "🌙";
+  saveState();
+}
+
+/* =========================================================
+   Обработчики событий
+========================================================= */
+document.addEventListener("click", (event) => {
+  const marketTile = event.target.closest("#marketplaceTiles .tile");
+  if (marketTile) {
+    selectTile("#marketplaceTiles", marketTile.dataset.value);
+    return;
+  }
+
+  const taskTile = event.target.closest("#taskTiles .tile");
+  if (taskTile) {
+    selectTile("#taskTiles", taskTile.dataset.value);
+    return;
+  }
+
+  if (event.target.closest("[data-next]")) {
+    if (validateStep(currentStep)) setStep(currentStep + 1);
+    return;
+  }
+
+  if (event.target.closest("[data-prev]")) {
+    setStep(currentStep - 1);
+  }
+});
+
+document.addEventListener("input", (event) => {
+  const target = event.target;
+  if (target.id === "creativity") $("#creativityValue").textContent = target.value;
+  if (["category", "title"].includes(target.id) && target.value.trim()) setFieldError(target.id, false);
+  saveState();
+});
+
+document.addEventListener("change", saveState);
+
+$("#themeToggle").addEventListener("click", () => {
+  setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+});
+$("#exampleBtn").addEventListener("click", fillExample);
+$("#copyBtn").addEventListener("click", copyPrompt);
+$("#downloadBtn").addEventListener("click", downloadPrompt);
+$("#resetAllBtn").addEventListener("click", resetAll);
+
+/* =========================================================
+   Инициализация
+========================================================= */
+renderMarketplaces();
+renderTasks();
+renderSelects();
+restoreState();
+updateMarketplaceNote();
+setStep(1);
+</script>
+</body>
+</html>
