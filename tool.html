@@ -36,33 +36,27 @@
         <h2>Оставьте отзыв об инструменте</h2>
         <p class="muted" id="reviewToolName"></p>
 
-           <!-- Вставляем iframe от Яндекс Форм -->
-        <div style="margin-top: 20px; border-radius: 12px; overflow: hidden;">
-          <iframe src="https://forms.yandex.ru/u/6adf1cd36d2d73a8cb299c38/?iframe=1" frameborder="0" name="ya-form-6adf1cd36d2d73a8cb299c38" width="100%" height="600px"></iframe>
+        <!-- Белая подложка для формы Яндекса -->
+        <div style="background: #ffffff; border-radius: 16px; padding: 10px; margin-top: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+          <iframe 
+            src="https://forms.yandex.ru/u/6adf1cd36d2d73a8cb299c38/?iframe=1" 
+            frameborder="0" 
+            name="ya-form-6adf1cd36d2d73a8cb299c38" 
+            width="100%" 
+            height="650px" 
+            style="border: none; display: block; border-radius: 8px;">
+          </iframe>
         </div>
 
         <div class="actions" style="margin-top: 20px; display: flex; justify-content: center;">
-          <a class="btn" href="index.html">← Пропустить и вернуться на главную</a>
+          <a class="btn" href="index.html">← Вернуться на главную</a>
         </div>
-        </form>
       </div>
     </div>
   </section>
 
-  <!-- Стадия 3: благодарность -->
-  <section id="stageThanks" class="stage hidden">
-    <div class="wrap narrow center">
-      <div class="thanks-card">
-        <div class="thanks-emoji">🙏</div>
-        <h2>Спасибо за отзыв!</h2>
-        <p class="muted">Вы помогаете сделать инструменты лучше.</p>
-        <p class="muted">Через <span id="countdown">3</span> сек. вернёмся на главную…</p>
-        <a class="btn primary" href="index.html">Вернуться сейчас</a>
-      </div>
-    </div>
-  </section>
-
+  <!-- Подключаем только нужные скрипты -->
   <script src="js/tools.js"></script>
-  <script src="js/reviews.js"></script>
+  <script src="js/tool.js"></script>
 </body>
 </html>
