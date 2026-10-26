@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Предпросмотр фото</title>
+<style>
+:root{
+  --text:#f8fafc;
+  --muted:#aeb9cd;
+  --line:#ffffff24;
+  --violet:#8b5cf6;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 16% 2%,#28345d 0,transparent 32%),
+    radial-gradient(circle at 94% 16%,#3b1b59 0,transparent 28%),
+    linear-gradient(135deg,#080d1c,#11182d 52%,#090b16);
+}
+.page{width:min(1390px,calc(100% - 40px));margin:auto;padding:54px 0 76px}
+header{text-align:center;margin-bottom:30px}
+h1{margin:0;font-size:clamp(2rem,4vw,3.5rem);letter-spacing:-.045em}
+.lead{margin:12px auto 23px;color:var(--muted)}
+.upload{
+  display:inline-flex;
+  padding:13px 20px;
+  border:1px solid #ffffff35;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--violet),#6366f1);
+  color:#fff;
+  font-weight:750;
+  cursor:pointer;
+  box-shadow:0 12px 30px #5c43e652;
+}
+input{display:none}
+
+/* Панель выбора маркетплейса */
+.market-panel{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
+  margin-top:22px;
+  flex-wrap:wrap;
+}
+.market-panel label{
+  font-size:14px;
+  color:var(--muted);
+  font-weight:500;
+}
+.market-select{
+  position:relative;
+  min-width:240px;
+}
+.market-select input{
+  display:block;
+  width:100%;
+  padding:12px 40px 12px 16px;
+  border:1px solid #ffffff30;
+  border-radius:12px;
+  background:#131b31cc;
+  color:#fff;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  outline:none;
+  transition:border-color .2s;
+}
+.market-select input:focus,
+.market-select input:hover{
+  border-color:#8b5cf6aa;
+}
+.market-select input::placeholder{
+  color:#7f8ca7;
+}
+.market-select .arrow{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  pointer-events:none;
+  color:#7f8ca7;
+  font-size:12px;
+}
+.market-dropdown{
+  position:absolute;
+  top:calc(100% + 6px);
+  left:0;
+  right:0;
+  max-height:280px;
+  overflow-y:auto;
+  background:#131b31;
+  border:1px solid #ffffff25;
+  border-radius:12px;
+  box-shadow:0 20px 40px #000a;
+  z-index:50;
+  display:none;
+}
+.market-dropdown.open{display:block}
+.market-dropdown .item{
+  padding:11px 16px;
+  font-size:14px;
+  color:#d0d9ea;
+  cursor:pointer;
+  transition:background .15s,color .15s;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-left:3px solid transparent;
+}
+.market-dropdown .item:hover,
+.market-dropdown .item.active{
+  background:#8b5cf630;
+  color:#fff;
+}
+.market-dropdown .item.highlight{
+  background:linear-gradient(90deg,#8b5cf655,#8b5cf622);
+  border-left-color:#a78bfa;
+  color:#fff;
+  font-weight:600;
+}
+.market-dropdown .item .check{
+  color:#8b5cf6;
+  font-weight:700;
+}
+
+/* Сетка: 3 устройства в ряд */
+.devices{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:22px;
+  margin-top:28px;
+}
+.device-card{
+  min-width:0;
+  padding:20px 18px;
+  background:#111930a8;
+  border:1px solid var(--line);
+  border-radius:23px;
+  box-shadow:0 18px 50px #0004;
+  cursor:zoom-in;
+  transition:transform .22s,border-color .22s;
+}
+.device-card:hover{
+  transform:translateY(-3px);
+  border-color:#a78bfa99;
+}
+.device-title{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 14px;
+  font-size:14px;
+  font-weight:750;
+}
+.device-title span{color:#8290ab;font-size:11px;font-weight:500}
+.stage{
+  min-height:220px;
+  display:grid;
+  place-items:center;
+}
+.screen{
+  overflow:hidden;
+  background:#fff;
+  position:relative;
+}
+
+/* ---------- Монитор ---------- */
+.monitor .bezel{
+  width:min(100%,420px);
+  padding:9px 9px 14px;
+  border-radius:11px;
+  background:linear-gradient(145deg,#59657b,#151b2a 38%,#080c15);
+  box-shadow:0 20px 30px #0008;
+}
+.monitor .screen{aspect-ratio:16/9;border-radius:4px}
+.stand{
+  width:28%;height:20px;margin:0 auto -14px;
+  background:linear-gradient(90deg,#273043,#707b90,#273043);
+  clip-path:polygon(35% 0,65% 0,75% 100%,25% 100%);
+}
+.foot{
+  width:52%;height:8px;margin:14px auto 0;
+  border-radius:50% 50% 3px 3px;background:#4e5a70;
+}
+
+/* ---------- Ноутбук ---------- */
+.laptop .frame{
+  width:min(100%,400px);
+  padding:9px 9px 0;
+  border-radius:13px 13px 0 0;
+  background:linear-gradient(145deg,#667085,#1d2638 48%,#0a0e16);
+  box-shadow:0 20px 30px #0008;
+}
+.laptop .screen{aspect-ratio:16/10;border-radius:5px 5px 0 0}
+.laptop .base{
+  display:block;width:100%;height:12px;margin:0;
+  border-radius:0 0 10px 10px;
+  background:linear-gradient(#98a3b5,#3f4b5f);
+}
+
+/* ---------- Планшет ---------- */
+.tablet .frame{
+  width:min(100%,230px);padding:9px;border-radius:23px;
+  background:linear-gradient(145deg,#6d778a,#222a39 42%,#090e18);
+  box-shadow:0 18px 32px #0008;
+}
+.tablet .screen{aspect-ratio:3/4;border-radius:14px}
+.tablet .shop{font-size:clamp(2.4px,.45vw,6px)}
+
+/* ---------- Складной телефон ---------- */
+.fold .frame{
+  width:min(100%,290px);padding:8px;border-radius:25px;
+  background:linear-gradient(145deg,#9aa5b8,#293246 44%,#090e18);
+  box-shadow:0 18px 32px #0008;position:relative;
+}
+.fold .screen{aspect-ratio:18/19.5;border-radius:18px}
+.fold .frame:before,.fold .frame:after{
+  content:"";position:absolute;z-index:12;left:50%;
+  transform:translateX(-50%);width:24%;height:7px;
+  border-radius:0 0 7px 7px;
+  background:repeating-linear-gradient(90deg,#101725 0 3px,#778398 3px 5px,#101725 5px 8px);
+  box-shadow:0 1px 2px #0008;
+}
+.fold .frame:before{top:0}
+.fold .frame:after{bottom:0;transform:translateX(-50%) rotate(180deg)}
+.fold .shop{font-size:clamp(2.2px,.42vw,5.5px)}
+
+/* ---------- Телефоны ---------- */
+.bigphone .frame,.smallphone .frame{
+  padding:7px;border-radius:29px;
+  background:linear-gradient(145deg,#a2acc0,#333c50 44%,#0a0e16);
+  box-shadow:0 20px 34px #0008;
+}
+.bigphone .frame{width:min(100%,146px)}
+.smallphone .frame{width:min(100%,116px)}
+.bigphone .screen,.smallphone .screen{
+  aspect-ratio:9/19.5;border-radius:23px;
+  /* Опускаем содержимое ниже чёлки */
+  padding-top:20%;
+  background:#fff;
+}
+
+/* Чёлка + индикаторы (остаются поверх, вне потока) */
+.bigphone .screen:before,.smallphone .screen:before{
+  content:"";
+  position:absolute;z-index:10;left:50%;top:4px;
+  transform:translateX(-50%);
+  width:43%;height:15px;
+  border-radius:12px;
+  background:#090b10;
+}
+/* Заряд справа + связь слева */
+.bigphone .screen:after,.smallphone .screen:after{
+  content:"";
+  position:absolute;z-index:11;inset:0;
+  pointer-events:none;
+  background:
+    /* заряд справа (прямоугольник + контакт) */
+    linear-gradient(#111,#111) no-repeat 88% 3.5% / 7% 3%,
+    linear-gradient(#111,#111) no-repeat 95.4% 4.4% / 1.2% 1.4%,
+    /* связь слева — 4 палочки */
+    linear-gradient(#111,#111) no-repeat 8% 5.2% / 2.5% 1.4%,
+    linear-gradient(#111,#111) no-repeat 12.5% 4.2% / 2.5% 2.4%,
+    linear-gradient(#111,#111) no-repeat 17% 3.2% / 2.5% 3.4%,
+    linear-gradient(#111,#111) no-repeat 21.5% 2.2% / 2.5% 4.4%;
+}
+
+/* ==========================================================
+   СТИЛИ КАРТОЧЕК ТОВАРОВ ДЛЯ МАРКЕТПЛЕЙСОВ
+   ========================================================== */
+.shop{
+  height:100%;color:#172033;font-family:Arial,sans-serif;
+  background:#fff;overflow:hidden;font-size:clamp(3px,.65vw,8px);
+}
+.shop-nav{
+  height:12%;padding:2.5% 4%;display:flex;
+  align-items:center;gap:4%;background:#131e29;color:#fff;
+}
+.brand{font-size:1.45em;font-weight:bold}
+.search{height:45%;flex:1;background:#f3a847}
+.shop-body{
+  padding:3.5%;display:grid;
+  grid-template-columns:39% 34% 27%;gap:3%;
+}
+.photo-area{
+  display:flex;align-items:center;justify-content:center;
+  background:#fff;overflow:hidden;
+}
+.product-image{width:100%;height:100%;object-fit:contain;display:none}
+.photo-placeholder{
+  color:#748094;text-align:center;font-size:1.15em;padding:5%;
+}
+.details h3{margin:0 0 5%;font-size:1.55em;line-height:1.12}
+.rating{color:#ee8e19;margin-bottom:6%}
+.line{height:5%;background:#e8edf3;margin:4% 0;border-radius:2px}
+.short{width:70%}
+.buybox{border:1px solid #d6dbe3;border-radius:4px;padding:9%;height:max-content}
+.price{font-size:1.8em;color:#b12704;margin:0 0 7%;white-space:nowrap}
+.stock{color:#157a3f;margin:0 0 8%;white-space:nowrap}
+.qty{display:inline-block;padding:4%;background:#eef0f3;margin-bottom:7%;white-space:nowrap}
+.cart{
+  width:100%;border:0;border-radius:10px;
+  background:#ffd814;padding:7%;font-size:1em;
+}
+.description{
+  grid-column:1/3;border-top:1px solid #e2e6eb;
+  margin-top:3%;padding-top:3%;font-size:1.1em;
+}
+.description b{display:block;margin-bottom:2%}
+
+/* ---- Amazon: 1:1 ---- */
+.shop.market-amazon .photo-area{aspect-ratio:1/1;width:100%;border:1px solid #e5e7eb}
+.shop.market-amazon .shop-nav{background:#131e29}
+.shop.market-amazon .search{background:#febd69}
+.shop.market-amazon .price{color:#b12704}
+.shop.market-amazon .cart{background:#ffd814}
+
+/* ---- eBay: 1:1 ---- */
+.shop.market-ebay .photo-area{aspect-ratio:1/1;width:100%;border:1px solid #e5e7eb}
+.shop.market-ebay .shop-nav{background:#0064d2;color:#fff}
+.shop.market-ebay .search{background:#fff;border:1px solid #ccc}
+.shop.market-ebay .brand{font-style:italic;color:#fff}
+.shop.market-ebay .price{color:#333;font-weight:bold}
+.shop.market-ebay .stock{color:#0064d2}
+.shop.market-ebay .cart{background:#ffce00;color:#333}
+
+/* ---- Etsy: 4:3 ---- */
+.shop.market-etsy .photo-area{aspect-ratio:4/3;width:100%;border:1px solid #e8e2d6}
+.shop.market-etsy{background:#faf9f6;font-family:Georgia,serif}
+.shop.market-etsy .shop-nav{background:#f1641e;color:#fff}
+.shop.market-etsy .search{background:#fff}
+.shop.market-etsy .brand{font-family:Georgia,serif;font-style:italic}
+.shop.market-etsy .price{color:#f1641e;font-family:Georgia,serif}
+.shop.market-etsy .cart{background:#f1641e;color:#fff;border-radius:20px}
+
+/* ---- Wildberries: 3:4 ---- */
+.shop.market-wb .photo-area{aspect-ratio:3/4;width:100%;border:1px solid #e5e7eb}
+.shop.market-wb .shop-nav{background:#cb11ab;color:#fff}
+.shop.market-wb .search{background:#fff;border-radius:20px}
+.shop.market-wb .price{color:#cb11ab}
+.shop.market-wb .stock{color:#00a046}
+.shop.market-wb .cart{background:#cb11ab;color:#fff;border-radius:8px}
+.shop.market-wb .rating{color:#cb11ab}
+
+/* ---- Ozon: 3:4 ---- */
+.shop.market-ozon .photo-area{aspect-ratio:3/4;width:100%;border:1px solid #e5e7eb}
+.shop.market-ozon .shop-nav{background:#005bff;color:#fff}
+.shop.market-ozon .search{background:#fff;border-radius:8px}
+.shop.market-ozon .price{color:#f91155;font-weight:bold}
+.shop.market-ozon .stock{color:#005bff}
+.shop.market-ozon .cart{background:#005bff;color:#fff;border-radius:8px}
+.shop.market-ozon .rating{color:#f91155}
+
+/* ---- Rakuten: 1:1 ---- */
+.shop.market-rakuten .photo-area{aspect-ratio:1/1;width:100%;border:1px solid #e5e7eb}
+.shop.market-rakuten .shop-nav{background:#bf0000;color:#fff}
+.shop.market-rakuten .search{background:#fff}
+.shop.market-rakuten .price{color:#bf0000}
+.shop.market-rakuten .stock{color:#004098}
+.shop.market-rakuten .cart{background:#bf0000;color:#fff;border-radius:4px}
+
+/* ---- Shopee: 1:1 ---- */
+.shop.market-shopee .photo-area{aspect-ratio:1/1;width:100%;border:1px solid #e5e7eb}
+.shop.market-shopee .shop-nav{background:#ee4d2d;color:#fff}
+.shop.market-shopee .search{background:#fff;border-radius:4px}
+.shop.market-shopee .price{color:#ee4d2d}
+.shop.market-shopee .stock{color:#26aa99}
+.shop.market-shopee .cart{background:#ee4d2d;color:#fff;border-radius:4px}
+.shop.market-shopee .rating{color:#ee4d2d}
+
+/* ---- Lazada: 1:1 ---- */
+.shop.market-lazada .photo-area{aspect-ratio:1/1;width:100%;border:1px solid #e5e7eb}
+.shop.market-lazada .shop-nav{background:#0f156d;color:#fff}
+.shop.market-lazada .search{background:#f57224}
+.shop.market-lazada .price{color:#f57224}
+.shop.market-lazada .stock{color:#0f156d}
+.shop.market-lazada .cart{background:#f57224;color:#fff;border-radius:6px}
+
+/* ---- Mercado Libre: 1:1 ---- */
+.shop.market-meli .photo-area{aspect-ratio:1/1;width:100%;border:1px solid #e5e7eb}
+.shop.market-meli .shop-nav{background:#ffe600;color:#333}
+.shop.market-meli .search{background:#fff;border:1px solid #ddd}
+.shop.market-meli .brand{color:#333}
+.shop.market-meli .price{color:#333;font-weight:bold}
+.shop.market-meli .stock{color:#00a650}
+.shop.market-meli .cart{background:#3483fa;color:#fff;border-radius:6px}
+.shop.market-meli .rating{color:#3483fa}
+
+/* ---- Noon: 1:1 ---- */
+.shop.market-noon .photo-area{aspect-ratio:1/1;width:100%;border:1px solid #e5e7eb}
+.shop.market-noon .shop-nav{background:#feee00;color:#333}
+.shop.market-noon .search{background:#fff;border:1px solid #ccc}
+.shop.market-noon .brand{color:#333}
+.shop.market-noon .price{color:#f4511e}
+.shop.market-noon .stock{color:#333}
+.shop.market-noon .cart{background:#feee00;color:#333;border-radius:4px;font-weight:bold}
+
+/* ---- Trendyol: 2:3 ---- */
+.shop.market-trendyol .photo-area{aspect-ratio:2/3;width:100%;border:1px solid #e5e7eb}
+.shop.market-trendyol .shop-nav{background:#f27a1a;color:#fff}
+.shop.market-trendyol .search{background:#fff;border-radius:4px}
+.shop.market-trendyol .price{color:#f27a1a}
+.shop.market-trendyol .stock{color:#333}
+.shop.market-trendyol .cart{background:#f27a1a;color:#fff;border-radius:4px}
+
+/* ---- Мобильная адаптация магазина ---- */
+.bigphone .shop,.smallphone .shop{font-size:clamp(3px,1.8vw,6px)}
+.bigphone .shop-nav,.smallphone .shop-nav{height:9%;padding:3% 5%}
+.bigphone .shop-body,.smallphone .shop-body{display:block;padding:5%}
+.bigphone .photo-area,.smallphone .photo-area{height:36%;margin-bottom:5%}
+.bigphone .buybox,.smallphone .buybox{
+  border:0;padding:0;margin-top:5%;
+  display:grid;grid-template-columns:1fr 1fr;gap:4%;
+}
+.bigphone .price,.bigphone .stock,
+.smallphone .price,.smallphone .stock{margin:0}
+.bigphone .qty,.smallphone .qty,
+.bigphone .description,.smallphone .description{display:none}
+.bigphone .cart,.smallphone .cart{grid-column:1/3}
+
+/* ==========================================================
+   МОДАЛЬНОЕ ОКНО
+   ========================================================== */
+.modal{
+  position:fixed;z-index:30;inset:0;display:none;
+  place-items:center;padding:28px;background:#050816dc;
+  backdrop-filter:blur(9px);cursor:zoom-out;
+}
+.modal.active{display:grid}
+.modal-content{
+  position:relative;width:min(95vw,1400px);height:min(92vh,900px);
+  padding:22px 54px 30px;border:1px solid #ffffff2e;
+  border-radius:24px;background:#131b31;cursor:default;
+  display:grid;place-items:center;overflow:hidden;
+}
+.close{
+  position:absolute;z-index:40;right:16px;top:13px;
+  width:34px;height:34px;border:0;border-radius:50%;
+  font-size:25px;line-height:1;color:#fff;
+  background:#ffffff1f;cursor:pointer;
+}
+.close:hover{background:#ffffff36}
+.modal .device-card{
+  width:100%;height:100%;padding:0;border:0;
+  background:transparent;box-shadow:none;cursor:default;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.modal .device-title{display:flex;margin:0 0 14px;font-size:16px;flex:0 0 auto}
+.modal .device-title span{font-size:13px}
+.modal .stage{
+  width:100%;height:100%;min-height:0;
+  display:grid;place-items:center;overflow:hidden;
+}
+.modal .stage > div{display:grid;place-items:center;max-width:100%;max-height:100%}
+.modal .monitor .bezel{width:min(100%,1200px);padding:.9% .9% 1.4%;border-radius:1.1vmin}
+.modal .monitor .screen{aspect-ratio:16/9;border-radius:.5vmin}
+.modal .laptop .frame{width:min(100%,1100px);padding:.9% .9% 0;border-radius:1.3vmin 1.3vmin 0 0}
+.modal .laptop .screen{aspect-ratio:16/10;border-radius:.6vmin .6vmin 0 0}
+.modal .laptop .base{height:1.2vmin;border-radius:0 0 1vmin 1vmin}
+.modal .tablet .frame{height:min(100%,800px);width:auto;padding:1vmin;border-radius:2.4vmin}
+.modal .tablet .screen{aspect-ratio:3/4;height:100%;width:auto;border-radius:1.5vmin}
+.modal .tablet .shop{font-size:clamp(5px,.9vw,14px)}
+.modal .fold .frame{height:min(100%,800px);width:auto;padding:.9vmin;border-radius:2.6vmin}
+.modal .fold .screen{aspect-ratio:18/19.5;height:100%;width:auto;border-radius:1.8vmin}
+.modal .fold .frame:before,.modal .fold .frame:after{height:.7vmin;border-radius:0 0 .7vmin .7vmin}
+.modal .fold .shop{font-size:clamp(4.5px,.85vw,13px)}
+.modal .bigphone .frame,.modal .smallphone .frame{height:min(100%,800px);width:auto;padding:.8vmin;border-radius:3vmin}
+.modal .bigphone .screen,.modal .smallphone .screen{
+  aspect-ratio:9/19.5;height:100%;width:auto;border-radius:2.4vmin;
+  padding-top:9%;
+}
+.modal .bigphone .screen:before,.modal .smallphone .screen:before{height:1.6vmin;border-radius:1.2vmin}
+.modal .shop{font-size:clamp(6px,1.1vw,18px);height:100%}
+
+.info{
+  margin-top:25px;padding:16px 20px;
+  border:1px solid var(--line);border-radius:16px;
+  color:#b9c5da;font-size:14px;
+}
+
+@media(max-width:1100px){
+  .devices{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .page{width:min(100% - 28px,600px);padding-top:36px}
+  .devices{grid-template-columns:1fr}
+  .device-card{padding:18px}
+  .stage{min-height:255px}
+  .modal-content{padding:18px 30px;height:92vh}
+  .modal .device-title{font-size:14px}
+  .market-panel{flex-direction:column;gap:8px}
+  .market-select{width:100%}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <h1>Предпросмотр фото</h1>
+    <p class="lead">Загрузите фото товара и проверьте его отображение в карточке на разных устройствах.</p>
+    <label class="upload" for="fileInput">↑&nbsp; Загрузить изображение</label>
+    <input id="fileInput" type="file" accept="image/*">
+    <span id="status" class="hint">Фото будет вписано в блок товара без обрезки</span>
+    <div class="market-panel">
+      <label for="marketInput">Выбрать Маркетплейс</label>
+      <div class="market-select">
+        <input id="marketInput" type="text" placeholder="Начните вводить название..." autocomplete="off">
+        <span class="arrow">▼</span>
+        <div class="market-dropdown" id="marketDropdown">
+          <div class="item" data-value="amazon">Amazon</div>
+          <div class="item" data-value="ebay">eBay</div>
+          <div class="item" data-value="etsy">Etsy</div>
+          <div class="item" data-value="wb">Wildberries</div>
+          <div class="item" data-value="ozon">Ozon</div>
+          <div class="item" data-value="rakuten">Rakuten</div>
+          <div class="item" data-value="shopee">Shopee</div>
+          <div class="item" data-value="lazada">Lazada</div>
+          <div class="item" data-value="meli">Mercado Libre</div>
+          <div class="item" data-value="noon">Noon</div>
+          <div class="item" data-value="trendyol">Trendyol</div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <section class="devices" id="devices"></section>
+  <div class="info">Нажмите на любое устройство, чтобы открыть его в увеличенном режиме. Фото целиком помещается в блок с сохранением пропорций.</div>
+</main>
+<div id="modal" class="modal">
+  <div class="modal-content" id="modalContent">
+    <button class="close" id="close" aria-label="Закрыть">×</button>
+  </div>
+</div>
+<script>
+const data=[
+  ['monitor','Стандартный ПК монитор','1920 × 1080'],
+  ['laptop','Ноутбук','1440 × 900'],
+  ['tablet','Планшет','768 × 1024'],
+  ['fold','Складной телефон','1812 × 996'],
+  ['bigphone','Большой iPhone','430 × 932'],
+  ['smallphone','Маленький iPhone','375 × 812']
+];
+
+const marketNames={
+  amazon:'Amazon', ebay:'eBay', etsy:'Etsy', wb:'Wildberries', ozon:'Ozon',
+  rakuten:'Rakuten', shopee:'Shopee', lazada:'Lazada', meli:'Mercado Libre',
+  noon:'Noon', trendyol:'Trendyol'
+};
+
+let currentMarket='amazon';
+
+function productHTML(){
+  return `<div class="shop market-${currentMarket}">
+    <div class="shop-nav"><strong class="brand">${getBrandName()}</strong><div class="search"></div></div>
+    <div class="shop-body">
+      <div class="photo-area">
+        <img class="product-image" alt="Фото товара">
+        <div class="photo-placeholder">Фото товара<br><small>Загрузите изображение</small></div>
+      </div>
+      <div class="details">
+        <h3>Стильный товар для вашего дома</h3>
+        <div class="rating">★★★★★ &nbsp;4,8</div>
+        <div class="line"></div>
+        <div class="line short"></div>
+        <div class="line"></div>
+      </div>
+      <aside class="buybox">
+        <p class="price">2 490 ₽</p>
+        <p class="stock">В наличии</p>
+        <span class="qty">Количество: 1</span>
+        <button class="cart">В корзину</button>
+      </aside>
+      <div class="description"><b>О товаре</b>Качественный товар с продуманными деталями и кратким описанием преимуществ.</div>
+    </div>
+  </div>`;
+}
+
+function getBrandName(){
+  const names={
+    amazon:'amazon', ebay:'ebay', etsy:'Etsy', wb:'WB', ozon:'OZON',
+    rakuten:'楽天', shopee:'Shopee', lazada:'Lazada', meli:'Mercado Libre',
+    noon:'noon', trendyol:'trendyol'
+  };
+  return names[currentMarket]||'shop';
+}
+
+function markup(type,name,res){
+  let open='';
+  if(type==='monitor') open='<div class="bezel">';
+  else if(type==='laptop'||type==='tablet'||type==='fold'||type==='bigphone'||type==='smallphone') open='<div class="frame">';
+  let close='';
+  if(type==='monitor') close='</div><div class="stand"></div><div class="foot"></div>';
+  else if(type==='laptop') close='</div><div class="base"></div>';
+  else close='</div>';
+  return `<article class="device-card ${type}" data-type="${type}">
+    <p class="device-title">${name}<span>${res}</span></p>
+    <div class="stage"><div>${open}<div class="screen">${productHTML()}</div>${close}</div></div>
+  </article>`;
+}
+
+const devices=document.getElementById('devices');
+
+function renderDevices(){
+  devices.innerHTML=data.map(x=>markup(...x)).join('');
+  if(imageUrl){
+    document.querySelectorAll('.product-image').forEach(i=>{
+      i.src=imageUrl; i.style.display='block';
+    });
+    document.querySelectorAll('.photo-placeholder').forEach(x=>x.style.display='none');
+  }
+}
+
+let imageUrl;
+const status=document.getElementById('status');
+
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];
+  if(!f||!f.type.startsWith('image/'))return;
+  if(imageUrl)URL.revokeObjectURL(imageUrl);
+  imageUrl=URL.createObjectURL(f);
+  document.querySelectorAll('.product-image').forEach(i=>{
+    i.src=imageUrl; i.style.display='block';
+  });
+  document.querySelectorAll('.photo-placeholder').forEach(x=>x.style.display='none');
+  status.textContent=`Загружено: ${f.name}. Фото показано без обрезки.`;
+});
+
+/* ==========================================================
+   Выпадающий список с поиском-навигацией
+   ========================================================== */
+const marketInput=document.getElementById('marketInput');
+const marketDropdown=document.getElementById('marketDropdown');
+const allMarketItems=[...marketDropdown.querySelectorAll('.item')];
+
+let highlightTimer=null;
+
+function openDropdown(){marketDropdown.classList.add('open');}
+function closeDropdown(){marketDropdown.classList.remove('open');clearHighlight();}
+function clearHighlight(){allMarketItems.forEach(item=>item.classList.remove('highlight'));}
+
+function scrollToMatch(query){
+  clearHighlight();
+  const q=query.toLowerCase().trim();
+  if(!q) return;
+  let match=allMarketItems.find(item=>item.textContent.toLowerCase().startsWith(q));
+  if(!match){
+    match=allMarketItems.find(item=>item.textContent.toLowerCase().includes(q));
+  }
+  if(!match) return;
+  const itemTop=match.offsetTop;
+  const itemHeight=match.offsetHeight;
+  const dropdownHeight=marketDropdown.clientHeight;
+  const targetScroll=itemTop-(dropdownHeight/2)+(itemHeight/2);
+  marketDropdown.scrollTo({top:Math.max(0,targetScroll),behavior:'smooth'});
+  match.classList.add('highlight');
+  clearTimeout(highlightTimer);
+  highlightTimer=setTimeout(()=>{match.classList.remove('highlight');},1600);
+}
+
+function selectMarket(value){
+  currentMarket=value;
+  marketInput.value=marketNames[value];
+  allMarketItems.forEach(item=>{
+    item.classList.toggle('active', item.dataset.value===value);
+    const check=item.querySelector('.check');
+    if(item.dataset.value===value){
+      if(!check){
+        const span=document.createElement('span');
+        span.className='check';
+        span.textContent='✓';
+        item.append(span);
+      }
+    }else if(check){
+      check.remove();
+    }
+  });
+  closeDropdown();
+  renderDevices();
+  status.textContent=`Стиль карточки: ${marketNames[value]}`;
+}
+
+marketInput.addEventListener('focus',openDropdown);
+marketInput.addEventListener('click',openDropdown);
+marketInput.addEventListener('input',e=>{openDropdown();scrollToMatch(e.target.value);});
+marketDropdown.addEventListener('click',e=>{
+  const item=e.target.closest('.item');
+  if(item&&item.dataset.value){selectMarket(item.dataset.value);}
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.market-select')){closeDropdown();}});
+marketInput.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDropdown();marketInput.blur();}});
+
+/* ==========================================================
+   Модальное окно
+   ========================================================== */
+const modal=document.getElementById('modal'),content=document.getElementById('modalContent');
+
+devices.addEventListener('click',e=>{
+  const card=e.target.closest('.device-card');
+  if(!card)return;
+  content.querySelectorAll('.device-card').forEach(x=>x.remove());
+  const clone=card.cloneNode(true);
+  if(imageUrl){
+    clone.querySelectorAll('.product-image').forEach(i=>{
+      i.src=imageUrl; i.style.display='block';
+    });
+    clone.querySelectorAll('.photo-placeholder').forEach(x=>x.style.display='none');
+  }
+  content.append(clone);
+  modal.classList.add('active');
+});
+
+function shut(){
+  modal.classList.remove('active');
+  content.querySelectorAll('.device-card').forEach(x=>x.remove());
+}
+document.getElementById('close').onclick=shut;
+modal.addEventListener('click',e=>{if(e.target===modal)shut()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')shut()});
+
+/* ==========================================================
+   Инициализация
+   ========================================================== */
+renderDevices();
+selectMarket('amazon');
+</script>
+</body>
+</html>
