@@ -31,5 +31,14 @@ window.TOOLS = [
     icon: '🛠️',
     file: 'tools/promptforge.html',
     tags: ['Промпты', 'Маркетплейсы', 'AI']
-  }
+  },
+  {
+  id: 'methodology',
+  title: 'Методичка: Карточка товара',
+  subtitle: 'Полное руководство по созданию продающих карточек (PDF)',
+  icon: '📚',
+  file: 'tools/methodology_guide.pdf',
+  action: 'download', // <--- Это новая команда: "Скачать, а не открывать"
+  tags: ['Маркетплейсы', 'Гайд', 'PDF']
+}
 ];
