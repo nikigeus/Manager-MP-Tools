@@ -21,6 +21,16 @@
     
     // window.TOOLS берется из файла js/tools.js
     grid.innerHTML = window.TOOLS.map(tool => {
+      
+      // Проверяем, является ли инструмент скачиваемым файлом
+      const isDownload = tool.action === 'download';
+      
+      // Если да, ссылка ведет прямо на файл. Если нет — на страницу инструмента.
+      const linkUrl = isDownload ? tool.file : `tool.html?tool=${encodeURIComponent(tool.id)}`;
+      
+      // Меняем текст кнопки в зависимости от типа
+      const btnText = isDownload ? 'Скачать файл ⬇️' : 'Открыть инструмент →';
+
       return `
         <article class="tool-card">
           <div class="tool-icon">${tool.icon || '🧩'}</div>
@@ -29,8 +39,8 @@
           <div class="tags">${(tool.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
           
           <!-- Ссылка на инструмент. Открывается в новой вкладке -->
-          <a class="btn primary" href="tool.html?tool=${encodeURIComponent(tool.id)}" target="_blank" rel="noopener">
-            Открыть инструмент →
+          <a class="btn primary" href="${linkUrl}" target="_blank" rel="noopener">
+            ${btnText}
           </a>
         </article>
       `;
