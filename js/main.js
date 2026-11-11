@@ -19,7 +19,6 @@
   function renderTools() {
     if (!grid) return;
     
-    // window.TOOLS берется из файла js/tools.js
     grid.innerHTML = window.TOOLS.map(tool => {
       
       // Проверяем, является ли инструмент скачиваемым файлом
@@ -28,8 +27,12 @@
       // Если да, ссылка ведет прямо на файл. Если нет — на страницу инструмента.
       const linkUrl = isDownload ? tool.file : `tool.html?tool=${encodeURIComponent(tool.id)}`;
       
-      // Меняем текст кнопки в зависимости от типа
+      // Меняем текст кнопки
       const btnText = isDownload ? 'Скачать файл ⬇️' : 'Открыть инструмент →';
+
+      // ВАЖНО: Если это скачивание, добавляем атрибут download,
+      // который заставляет браузер сохранить файл на компьютер.
+      const downloadAttr = isDownload ? 'download' : '';
 
       return `
         <article class="tool-card">
@@ -38,8 +41,7 @@
           <p>${escapeHtml(tool.subtitle)}</p>
           <div class="tags">${(tool.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
           
-          <!-- Ссылка на инструмент. Открывается в новой вкладке -->
-          <a class="btn primary" href="${linkUrl}" target="_blank" rel="noopener">
+          <a class="btn primary" href="${linkUrl}" ${downloadAttr} target="_blank" rel="noopener">
             ${btnText}
           </a>
         </article>
