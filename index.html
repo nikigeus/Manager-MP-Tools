@@ -7,35 +7,39 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="wrap">
-      <div class="brand">
-        <div class="brand-logo">🧰</div>
-        <div>
-          <h1>Toolbox</h1>
-          <p>Коллекция полезных веб-инструментов</p>
-        </div>
+
+  <!-- Боковое меню -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <button class="menu-btn">☰ <span>МЕНЮ</span></button>
+      <div class="lang-switch">
+        <a href="#" class="active">RU</a>
+        <a href="#">EN</a>
       </div>
     </div>
-  </header>
+    <div class="sidebar-bottom">
+      <a href="#" title="Telegram">✈</a>
+      <a href="#" title="VK">VK</a>
+    </div>
+  </aside>
 
-  <main class="wrap">
-    <section class="intro">
-      <h2>Выберите инструмент</h2>
-      <p>Откроется на новой странице. После использования вы сможете оставить отзыв.</p>
-    </section>
+  <!-- Основная рабочая область -->
+  <main class="main-content">
+    <header class="page-header">
+      <h1>Инструменты для маркетплейсов</h1>
+      <p>Профессиональные решения для управления карточками товаров</p>
+    </header>
 
+    <!-- Сетка карточек -->
     <section id="toolsGrid" class="tools-grid" aria-live="polite"></section>
+
+    <!-- Кнопка "Показать еще" (пока просто для красоты, как на макете) -->
+    <div class="load-more-container">
+      <button class="btn-load-more">Показать еще <span>⌄</span></button>
+    </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      <p>© <span id="year"></span> Toolbox · Сделано с ❤️</p>
-    </div>
-  </footer>
-
   <script src="js/tools.js"></script>
-  <script src="js/reviews.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
