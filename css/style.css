@@ -1,26 +1,43 @@
+/* =========================================================
+   ПЕРЕМЕННЫЕ (Цвета и размеры)
+========================================================= */
 :root {
-  --bg: #f8f9fa;           /* Светло-серый фон страницы */
-  --surface: #ffffff;      /* Белый фон карточек */
-  --text-main: #1e1e1e;    /* Темный текст */
-  --text-muted: #757575;   /* Серый текст */
-  --border: #e0e0e0;       /* Цвет границ и разделителей */
-  --accent: #e53935;       /* Красный цвет (кнопки, активные вкладки) */
+  --bg: #f8f9fa;           /* Светло-серый фон */
+  --surface: #ffffff;      /* Белый фон карточек и меню */
+  --text-main: #1e1e1e;    /* Основной темный текст */
+  --text-muted: #757575;   /* Серый текст (описания) */
+  --border: #e0e0e0;       /* Цвет границ */
+  --accent: #e53935;       /* Красный цвет (кнопки) */
   --accent-hover: #c62828; /* Красный при наведении */
-  --radius: 8px;           /* Закругление углов карточек */
-  --sidebar-width: 80px;   /* Ширина бокового меню */
+  --radius: 8px;           /* Закругление углов */
+  --sidebar-width: 80px;   /* Ширина левого меню */
 }
 
+/* =========================================================
+   БАЗОВЫЕ СТИЛИ
+========================================================= */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text-main);
-  display: flex;
   min-height: 100vh;
 }
 
-/* ================= БОКОВОЕ МЕНЮ ================= */
+a { color: inherit; text-decoration: none; }
+.muted { color: var(--text-muted); }
+.hidden { display: none !important; }
+.center { text-align: center; }
+
+/* =========================================================
+   ГЛАВНАЯ СТРАНИЦА (index.html)
+========================================================= */
+body.page-home {
+  display: flex; /* Включаем боковое меню */
+}
+
+/* --- Боковое меню --- */
 .sidebar {
   width: var(--sidebar-width);
   background: var(--surface);
@@ -47,15 +64,15 @@ body {
 .menu-btn span { font-size: 10px; }
 
 .lang-switch { display: flex; flex-direction: column; gap: 15px; align-items: center; font-weight: 700; font-size: 14px; }
-.lang-switch a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+.lang-switch a { color: var(--text-muted); transition: color 0.2s; }
 .lang-switch a:hover, .lang-switch a.active { color: var(--text-main); }
 
 .sidebar-bottom { display: flex; flex-direction: column; gap: 15px; }
-.sidebar-bottom a { color: var(--text-main); text-decoration: none; font-weight: bold; font-size: 16px; }
+.sidebar-bottom a { color: var(--text-main); font-weight: bold; font-size: 16px; }
 
-/* ================= КОНТЕНТ ================= */
+/* --- Контент главной --- */
 .main-content {
-  margin-left: var(--sidebar-width); /* Отступ под меню */
+  margin-left: var(--sidebar-width);
   flex: 1;
   padding: 60px 40px;
   max-width: 1600px;
@@ -65,22 +82,22 @@ body {
 .page-header h1 { font-size: 36px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
 .page-header p { color: var(--text-muted); font-size: 16px; }
 
-/* ================= СЕТКА ================= */
+/* --- Сетка карточек --- */
 .tools-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* СТРОГО 3 КОЛОНКИ */
+  grid-template-columns: repeat(3, 1fr); /* Строго 3 колонки */
   gap: 24px;
   margin-bottom: 40px;
 }
 
-/* ================= КАРТОЧКА ================= */
+/* --- Карточка инструмента --- */
 .tool-card {
   background: var(--surface);
   border-radius: var(--radius);
   padding: 32px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03); /* Легкая тень */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
   transition: box-shadow 0.2s, transform 0.2s;
 }
 .tool-card:hover {
@@ -88,40 +105,20 @@ body {
   transform: translateY(-2px);
 }
 
-.tool-card .tool-icon {
-  font-size: 32px;
-  margin-bottom: 20px;
-}
+.tool-card .tool-icon { font-size: 32px; margin-bottom: 20px; }
+.tool-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+.tool-card p { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 24px; flex-grow: 1; }
+.tags { display: none; } /* Скрываем теги в стиле РЭЦ */
 
-.tool-card h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  line-height: 1.3;
-}
-
-.tool-card p {
-  color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 24px;
-  flex-grow: 1; /* Прижимает кнопку к низу */
-}
-
-/* Теги (скрываем, так как в макете их нет) */
-.tags { display: none; }
-
-/* ================= КНОПКИ ================= */
+/* --- Кнопки на главной --- */
 .btn {
   display: inline-block;
-  text-decoration: none;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   transition: 0.2s;
 }
 
-/* Кнопка "Подробнее" (красный текст со стрелкой) */
 .btn.primary {
   color: var(--accent);
   background: transparent;
@@ -132,7 +129,6 @@ body {
 .btn.primary:hover { color: var(--accent-hover); }
 .btn.primary:hover::after { margin-left: 6px; }
 
-/* Кнопка "Показать еще" (красная заливка) */
 .load-more-container { text-align: center; margin-top: 20px; }
 .btn-load-more {
   background: var(--accent);
@@ -150,16 +146,120 @@ body {
 }
 .btn-load-more:hover { background: var(--accent-hover); }
 
-/* ================= АДАПТИВ ================= */
+/* =========================================================
+   СТРАНИЦА ИНСТРУМЕНТА (tool.html)
+========================================================= */
+body.tool-page {
+  display: block; /* Отключаем флекс от главной */
+}
+
+/* --- Шапка страницы инструмента --- */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 15px 40px;
+}
+
+.header-row {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.back-link {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 14px;
+}
+.back-link:hover { text-decoration: underline; }
+
+#toolTitle { font-size: 20px; margin: 0; }
+
+/* --- Сцены (вкладки) --- */
+.stage {
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.wrap { width: 100%; max-width: 1100px; margin: 0 auto; }
+.wrap.narrow { max-width: 650px; }
+
+/* --- Рамка инструмента (iframe) --- */
+.iframe-shell {
+  width: 100%;
+  height: 70vh;
+  min-height: 500px;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.iframe-shell iframe { width: 100%; height: 100%; border: none; }
+
+.actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* --- Карточка отзыва --- */
+.review-card {
+  background: white;
+  padding: 40px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.review-card h2 { font-size: 24px; margin-bottom: 10px; }
+.review-card .muted { margin-bottom: 30px; }
+
+/* --- Кнопки на странице инструмента --- */
+.tool-page .btn {
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  padding: 12px 24px;
+  border-radius: 6px;
+}
+.tool-page .btn:hover { background: #f1f1f1; }
+.tool-page .btn.primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.tool-page .btn.primary:hover { background: var(--accent-hover); }
+
+/* --- Страница благодарности --- */
+.thanks-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 40px 28px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center;
+}
+.thanks-emoji { font-size: 54px; margin-bottom: 15px; }
+.thanks-card h2 { margin: 0 0 10px; }
+.thanks-card .btn { margin-top: 20px; }
+
+/* =========================================================
+   АДАПТИВ (Для телефонов и планшетов)
+========================================================= */
 @media (max-width: 1200px) {
   .tools-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .main-content { padding: 40px 20px; margin-left: 60px; }
   .sidebar { width: 60px; }
   :root { --sidebar-width: 60px; }
+  .main-content { padding: 40px 20px; }
   .tools-grid { grid-template-columns: 1fr; }
-  .page-header h1 { font-size: 24px; }
-  .tool-card { padding: 24px; }
+  .page-header h1 { font-size: 26px; }
+  
+  .header-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .iframe-shell { height: 60vh; }
+  .review-card { padding: 20px; }
+  .actions { flex-direction: column; }
+  .tool-page .btn { width: 100%; text-align: center; }
 }
