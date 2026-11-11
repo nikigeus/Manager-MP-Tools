@@ -1,7 +1,7 @@
 // Единый реестр. Добавляйте сюда новые инструменты.
 window.TOOLS = [
   {
-    id: 'html-live-editor',
+    id: 'HTML конвертор текста',
     title: 'HTML Live Editor',
     subtitle: 'Двусторонний редактор HTML с живым превью',
     icon: '⚡',
@@ -10,7 +10,7 @@ window.TOOLS = [
   },
   {
     id: 'text-fixer',
-    title: 'TextFixer',
+    title: 'Редактор раскладки',
     subtitle: 'Исправление раскладки клавиатуры и транслита',
     icon: '⌨️',
     file: 'tools/text-fixer.html',
@@ -18,14 +18,14 @@ window.TOOLS = [
   },
   {
     id: 'photo-preview',
-    title: 'Photo Preview',
+    title: 'Фото на разных устройствах',
     subtitle: 'Предпросмотр фото товара на разных устройствах',
     icon: '🖼️',
     file: 'tools/photo-preview.html',
     tags: ['Фото', 'Маркетплейсы', 'Превью']
   },
   {
-    id: 'promptforge',
+    id: 'Генератор промптов для ИИ',
     title: 'PromptForge',
     subtitle: 'Конструктор промптов для карточек товаров',
     icon: '🛠️',
@@ -33,7 +33,7 @@ window.TOOLS = [
     tags: ['Промпты', 'Маркетплейсы', 'AI']
   },
   {
-  id: 'methodology',
+  id: 'Методическое пособие по карточке товара',
   title: 'Методичка: Карточка товара',
   subtitle: 'Полное руководство по созданию продающих карточек (PDF)',
   icon: '📚',
