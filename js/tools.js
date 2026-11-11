@@ -1,8 +1,8 @@
 // Единый реестр. Добавляйте сюда новые инструменты.
 window.TOOLS = [
   {
-    id: 'HTML конвертор текста',
-    title: 'HTML Live Editor',
+    id: 'html-live-editor',
+    title: 'HTML редактор текста',
     subtitle: 'Двусторонний редактор HTML с живым превью',
     icon: '⚡',
     file: 'tools/html-live-editor.html',
@@ -25,20 +25,20 @@ window.TOOLS = [
     tags: ['Фото', 'Маркетплейсы', 'Превью']
   },
   {
-    id: 'Генератор промптов для ИИ',
-    title: 'PromptForge',
+    id: 'promptforge',
+    title: 'Генератор промптов для ИИ',
     subtitle: 'Конструктор промптов для карточек товаров',
     icon: '🛠️',
     file: 'tools/promptforge.html',
     tags: ['Промпты', 'Маркетплейсы', 'AI']
   },
   {
-  id: 'Методическое пособие по карточке товара',
-  title: 'Методичка: Карточка товара',
-  subtitle: 'Полное руководство по созданию продающих карточек (PDF)',
-  icon: '📚',
-  file: 'tools/methodology_guide.pdf',
-  action: 'download', // <--- Это новая команда: "Скачать, а не открывать"
-  tags: ['Маркетплейсы', 'Гайд', 'PDF']
-}
+    id: 'methodology', // <--- Исправлено: латиница, без пробелов
+    title: 'Методичка: Карточка товара',
+    subtitle: 'Полное руководство по созданию продающих карточек (PDF)',
+    icon: '📚',
+    file: 'tools/methodology_guide.pdf',
+    action: 'download', 
+    tags: ['Маркетплейсы', 'Гайд', 'PDF']
+  }
 ];
