@@ -184,7 +184,9 @@ body.tool-page {
   justify-content: center;
 }
 
-.wrap { width: 100%; max-width: 1100px; margin: 0 auto; }
+.wrap { width: 100%; max-width: 100%; padding: 0 20px; margin: 0 auto; }
+
+/* А вот для формы отзыва оставляем узкую колонку, чтобы текст не растягивался */
 .wrap.narrow { max-width: 650px; }
 
 /* --- Рамка инструмента (iframe) --- */
